@@ -1,0 +1,36 @@
+---
+layout: post
+title: Fixing memory leaks of Internet Explorer 6
+categories: []
+tags: []
+status: publish
+type: post
+published: true
+meta:
+  _edit_last: '1'
+  _wpas_done_all: '1'
+---
+<p>Lately we experienced a lot of performance problems in our AJAX applications. Since we went online a year ago we always had problems with users of Internet Explorer 6 but within the last three months they got more and more.</p>
+<p>We already knew that this had something to do with the huge memory amount the Internet Explorer 6 uses after some hours of working with our application. I used the <a href="http://technet.microsoft.com/en-us/sysinternals/bb896653.aspx">Process Explorer</a> to analyze which page causes the problem. After identifying the page I did some reloads of it and generated the following image:</p>
+<p align="center"><a href="http://dertompson.com/wp-content/uploads/2008/03/memory-verlauf-ie-reload.png" title="leaking ie"><img src="http://dertompson.com/wp-content/uploads/2008/03/memory-verlauf-ie-reload.png" alt="leaking ie" height="299" width="327" /></a></p>
+<p>As you can see, with every reload the memory amount consumed by the Internet Explorer 6 increased (for about 2 megabytes). This memory amount was never released, even if a complete different page of the application was loaded. The only way to release the memory again was to close the instance of the browser.</p>
+<p>I did a web search and found <a href="http://msdn2.microsoft.com/en-us/library/bb250448.aspx">this interesting link about â€œUnderstanding and Solving Internet Explorer Leak Patternsâ€ </a>. It describes four different situations that could lead to memory leaks in Internet Explorer by using good graphics and example code.</p>
+<p>I was really shocked when I realized that the Internet Explorer 6 holds those elements in memory even after the user left the page and loaded another one. In other browser it is just important to make sure that inside the page the references to elements are released proper when working with a lot of AJAX code without reloading the page.</p>
+<p>We are using <a href="http://www.prototypejs.org/">prototype</a> and <a href="http://script.aculo.us/">scriptaculous</a> as JavaScript libraries. Another library used to display a clickable calendar for date input fields is <a href="http://www.dynarch.com/projects/calendar/">the JSCalendar from dynarch.com</a>. To find out which elements of the DOM and which script code cause the memory leak I searched for another tool â€“ and found <a href="http://home.wanadoo.nl/jsrosman/">sIEve</a>.</p>
+<p>With sIEve it was easy to detect to suspicious elements. After reloading the page inside of sIEve a lot of possible leaks were detected and the list looked like this:</p>
+<p align="center"><a href="http://dertompson.com/wp-content/uploads/2008/03/sieve-leaks-anonym.png" title="sieve leaks"><img src="http://dertompson.com/wp-content/uploads/2008/03/sieve-leaks-anonym.png" alt="sieve leaks" height="221" width="390" /></a></p>
+<p>By looking through the code of the page I found out that all the elements in the list had events registered (onclick, onkeyup, onchange, &#8230;) and the assigned methods contained closures (<a href="http://msdn2.microsoft.com/en-us/library/bb250448.aspx">see this link for details again</a>).</p>
+<p>Some were caused by the used calendar library. I already sent an email to the author Mihai Bazon. He wrote <a href="http://www.bazon.net/mishoo/articles.epl?art_id=824">a very good article about the problem</a> and I could not believe that there is exactly that bug inside his library. Maybe we are using it incorrect.</p>
+<p>The other leaks were caused by prototype. Although prototype has a built in mechanism that should unlink registered events when the page is unloaded they survived the reload. I found out that <a href="http://dev.rubyonrails.org/ticket/9466">there is a bug in the 1.6.0 version of prototype</a>. The mechanism was changed between version 1.5 and 1.6. This explained why the problem got bigger after updating out application to the new prototype version.</p>
+<p>To fix the problem I registered a method to the unload event of the page that removes all the critical registered events. This looks like:</p>
+<pre line="1" lang="JavaScript">function breakLeaks() {
+	$('img_calendar').onclick = null;
+	Event.stopObserving("fieldX", "keyup", keycheck, false);
+	Event.stopObserving("fieldX", "click", mousecheck, false);
+		...
+}
+
+Event.stopObserving("window", "unload", breakLeaks, false);</pre>
+<p>After changing the page like that I tested it again with sIEve and no more leaks were detectd. Then I used the Process Explorer again to monitor the memory consumption of the Internet Explorer. The graph now looked like:</p>
+<p align="center"><a href="http://dertompson.com/wp-content/uploads/2008/03/memory-ie.png" title="noleak ie"><img src="http://dertompson.com/wp-content/uploads/2008/03/memory-ie.png" alt="noleak ie" height="315" width="332" /></a></p>
+<p>The memory footprint is a lot smaller now and memory allocated by the reload was completely released again.</p>

@@ -1,0 +1,65 @@
+---
+layout: post
+title: Encoding filter for Java web applications
+categories: []
+tags: []
+status: publish
+type: post
+published: true
+meta:
+  _edit_last: '1'
+  _wpas_done_all: '1'
+---
+<p>Dealing correctly with encodings is one of the most important things in Java web applications (if not even in Java). The best way to avoid troubles with different encodings is to use only one encoding throughout the entire web application. The encoding of choice is UTF-8 which is able to deal with almost every known written language.</p>
+<p>The first thing you have to ensure is that every content delivery from your server tells the client (browser) the correct encoding to use. You do this by setting the meta header field in your HTML pages:</p>
+<p><code>&lt;meta http-equiv="Content-Type" content="text/html; charset=utf-8"&gt;</code></p>
+<p>and define the contentType in the page directive of your JSP</p>
+<p><code>&lt;%@ page language="java" contentType="text/html; charset=utf-8" pageEncoding="utf-8"%&gt;</code></p>
+<p>The attribute pageEncoding tells the JSP compiler the encoding in which the JSP is stored on the disk.</p>
+<p>Now your content should be delivered correctly to the client. The next important thing to do is to handle data the client sends to you with the correct encoding. Most application containers use a hard coded standard encoding do decode request data. For the Apache Tomcat the default encoding is iso-8859-1.</p>
+<p>If you have an input form that is delivered in utf-8 the browser will submit the form data in the same encoding. Now you get a problem if you call request.getParameter in your application and the parameter contains special characters. To tell the application server the right encoding to decode your request you have to set request.setCharacterEncoding before accessing a request parameter the first time.</p>
+<p>Therefore you should use a Filter like shown in the following code:</p>
+<pre>public class EncodingFilter implements Filter {
+
+	private String encoding = "utf-8";
+
+	public void doFilter(ServletRequest request,
+
+	ServletResponse response, FilterChain filterChain) throws IOException, ServletException {
+		request.setCharacterEncoding(encoding);
+		filterChain.doFilter(request, response);
+	}
+
+	public void init(FilterConfig filterConfig) throws ServletException {
+		String encodingParam = filterConfig.getInitParameter("encoding");
+		if (encodingParam != null) {
+			encoding = encodingParam;
+		}
+	}
+
+	public void destroy() {
+		// nothing todo
+	}
+
+}</pre>
+<p>You have to configure this filter in your web.xml to be executed before every request:</p>
+<pre>&lt;filter&gt;
+
+	&lt;filter-name&gt;EncodingFilter&lt;/filter-name&gt;
+	&lt;filter-class&gt;
+		net.einwaller.filters.EncodingFilter
+	&lt;/filter-class&gt;
+
+	&lt;init-param&gt;
+		&lt;param-name&gt;encoding&lt;/param-name&gt;
+		&lt;param-value&gt;UTF-8&lt;/param-value&gt;
+	&lt;/init-param&gt;
+
+&lt;/filter&gt;
+
+&lt;filter-mapping&gt;
+	&lt;filter-name&gt;EncodingFilter&lt;/filter-name&gt;
+	&lt;url-pattern&gt;/*&lt;/url-pattern&gt;
+&lt;/filter-mapping&gt;</pre>
+<p>If you mind all these tips your web application will not have any encoding problems &#8211; EXCEPT with GET requests. In GET requests the parameters are encoded into the URL not in the body of the request like in POST requests. These parameters are handled different by the application container.</p>
+<p>Tomcat again uses iso-8859-1 per default to decode those GET parameters regardless of which encoding is set in the request by your filter. To change this behavior you have to change connector configuration inside the server.xml of your Tomcat as <a href="http://tomcat.apache.org/tomcat-5.5-doc/config/http.html">described here</a>. The attribute <code>URIEncoding</code> defines a fixed encoding the server uses for every request. What we want to use is the attribute <code>useBodyEncodingForURI</code> which tells the server to use the encoding defined for the body for the GET parameters too.</p>

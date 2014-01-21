@@ -1,0 +1,40 @@
+---
+layout: post
+title: BigDecimal and JDBC since Java 5.0
+categories: []
+tags: []
+status: publish
+type: post
+published: true
+meta:
+  _edit_last: '1'
+  _wpas_done_all: '1'
+---
+<p><img src="http://dertompson.com/wp-content/uploads/2007/08/java-logo-thumb.png" class="alignleft" alt="java logo" />In one of my projects I came across an interesting problem with BigDecimal values. The project uses a persistence framework to persist Java objects into an Oracle 9i database with the Oracle JDBC driver 10.2.0.3.0. I could also reproduce this problem with Hibernate on a Microsoft SQL Express 2005 database using the Microsoft JDBC driver 1.2.</p>
+<p>The problem was that sometimes when I tried to store objects containing BigDecimal values the following exception was thrown and the object could not be persisted:<br />
+<code><br />
+[2008-01-02 23:02:36] [main] WARN  org.hibernate.util.JDBCExceptionReporter  - SQL Error: 8114, SQLState: S0005<br />
+[2008-01-02 23:02:36] [main] ERROR org.hibernate.util.JDBCExceptionReporter  - Error converting data type nvarchar to decimal.</code></p>
+<p>Converting nvarchar to decimal? I am trying to insert a number into the database and the JDBC driver tells me he is not able to convert a nvarchar (text) to a decimal?</p>
+<p>After doing some search I found out that this problem might have something to do with a change made in Java 5.0. I found <a href="http://rolfje.wordpress.com/2007/01/31/java-5-bigdecimaltostring-and-oracle-10g-jdbc/">this blog post</a> and <a href="http://www.javalobby.org/java/forums/t88158.html">this article</a> writing about similar errors. The implementation of <code>BigDecimal.toString()</code> changed in Java 5.0 and there is a new method <code>toPlainString()</code> doing what <code>toString()</code> did before.</p>
+<p>The following code example</p>
+<pre line="1" lang="Java">System.out.println(new Double(12500000).toString());
+final BigDecimal value = new BigDecimal(new Double(12500000).toString());
+System.out.println(value.toString());
+System.out.println(new BigDecimal(value.toPlainString()).toString());</pre>
+<p>executed with Java 5.0 results in the following console output:</p>
+<p><code>1.25E7<br />
+1.25E+7<br />
+12500000</code></p>
+<p>Whereas executed with Java 1.4 it generates another output:</p>
+<p><code>1.25E7<br />
+12500000</code></p>
+<p>Some JDBC driver use the toString() method to get the value of a BigDecimal and if it has to many decimal positions you may run into this problem.</p>
+<p>In my case the solution was to do all the calculations with <code>BigDecimal</code> values and given <code>MathContext</code> and <code>RoundingMode</code> instead of creating <code>BigDecimal</code> values out of Double values from calculations.</p>
+<pre line="1" lang="Java">
+BigDecimal value = new BigDecimal("100");
+BigDeciaml result = value.divide(new BigDecimal("3"), 2,
+                      BigDecimal.ROUND_HALF_UP);</pre>
+<p>instead of</p>
+<pre lang="Java" line="1">
+BigDeciaml result = new BigDecimal(100.0 / 3.0);</pre>

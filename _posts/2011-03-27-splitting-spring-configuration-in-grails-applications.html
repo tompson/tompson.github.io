@@ -1,0 +1,21 @@
+---
+layout: post
+title: Splitting Spring configuration in Grails applications
+categories: []
+tags: []
+status: publish
+type: post
+published: true
+meta:
+  _edit_last: '1'
+  _wpas_done_all: '1'
+---
+<p>My colleague <a href="http://blog.andresteingress.com/2010/10/13/grails-quicky-splitting-up-resources-groovy/">Andre wrote an interesting post about this topic</a> already and I have to do a follow up. In one of our projects we followed the assumptions Andre made and we found out that there are some things you might be careful not to stumble over them.</p>
+<p>First when experimenting with Spring bean configurations in your Grails application it is useful to change the log level for <code>org.codehaus.groovy.grails.commons</code> to at least <code>warning</code> level. It is configured for <code>error</code> per default which does not show if something is wrong in your XML configuration files.</p>
+<p>No on to the problem and my findings. If you try to import Spring XML bean configuration files via your resources.groovy file it would like the following:</p>
+<pre>beans = { 
+  importBeans('file:grails-app/conf/spring/context.xml') 
+}</pre>
+<p>The problem is that this seems to work, but only if you run the application via <code>grails run-app</code> with the embedded servlet container.</p>
+<p>As soon as you create a WAR file and deploy it into a tomcat you are getting into trouble. The Spring XML bean configuration files are moved into the folder <code>WEB-INF/spring</code> inside the WAR file. This means the XML files are not reachable via the configured path anymore. The spring folder is not in the classpath so using the classpath: prefix will not work either.</p>
+<p>Of course you could make some weird configuration hacks that use a different path in the production environment but the best way in my opinion is to not import Spring XML configurations from the groovy DSL files and vice versa. Just add an additional resources.xml for Spring XML configuration and import other XML files from there with a relative path. You can have both a resources.groovy and a resources.xml side by side.</p>

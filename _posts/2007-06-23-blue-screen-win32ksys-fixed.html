@@ -1,0 +1,25 @@
+---
+layout: post
+title: Blue screen win32k.sys fixed
+categories: []
+tags: []
+status: publish
+type: post
+published: true
+meta:
+  _edit_last: '1'
+  _wpas_done_all: '1'
+  _wpas_skip_3401315: '1'
+  _wpas_skip_3401319: '1'
+  _wpas_skip_3439451: '1'
+  _wpas_skip_3439452: '1'
+  _wpas_skip_3439454: '1'
+  _wp_old_slug: blue-screen-win32k-sys-fixed
+---
+<p>Within the last two weeks I had to experience the following BSOD (blue screen of death) several times a day:</p>
+<p><a href="http://www.flickr.com/photos/15684381@N00/577126451/" title="Photo Sharing"><img src="http://farm2.static.flickr.com/1407/577126451_3ab9f650bd.jpg" alt="bluescreen" height="375" width="500" /></a></p>
+<p>The error always came from the win32k.sys file:</p>
+<p><code>*** STOP: 0x0000008E (0xc0000005,...)</code><code><br>
+*** win32k.sys - Address BF8E270C base at BF800000, DateStamp ...</code></p>
+<p>I did a lot of web searches and found many users writing about similar problems. Upgrading the video driver as many sites suggested did not improve the situation but finally I found this <a href="http://connect.microsoft.com/SQLServer/feedback/ViewFeedback.aspx?FeedbackID=258813">Microsoft feedback entry</a>. It got my attention because the users were working on notebooks with 2GB memory and Core 2 Duo processors too.</p>
+<p>After I uninstalled the IntelliPoint mouse driver three days ago my system did not crash anymore – nice!</p>

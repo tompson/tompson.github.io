@@ -1,0 +1,26 @@
+---
+layout: post
+title: Tomcat classloader
+categories: []
+tags: []
+status: publish
+type: post
+published: true
+meta:
+  _edit_last: '1'
+  _wpas_done_all: '1'
+---
+	<p>I am using Tomcat for deploying my Java Web and Web Service applications for over 10 years now (yes, since the early 3.x versions). In the early days mostly for Struts applications and today for applications based on the Spring Framework (Spring MVC, Spring WebServices, Grails, &#8230;). In many of the projects I am consulting, we are using Tomcat in development and production environments too but the topic of this post has only been a discussion within the last few months, in one project.</p>
+<p>The customer just started using Tomcat for some applications in production, instead of their default environment WebSphere. I think coming from WebSphere and doing a lot of J2EE applications with EJB is one of the reasons for their idea of putting a lot of dependencies into the library folders of the Tomcat, instead of putting them into the WAR file of the application.</p>
+<p>In all of my other projects we are always putting all the required dependencies of an application into its WAR file, so that they are put into the WEB-INF/lib folder of the application. The only things I put in the Tomcat/lib folder are the JAR files for JDBC connections managed by tomcat. This allows me to use different versions of the dependencies in different applications deployed in the same Tomcat (e.g. Spring 2.5 and Spring 3 or JAX-WS 2.1 and JAX-WS 2.2).</p>
+<p>Another benefit of the<strong> fat WAR</strong> file is, that the behavior of the application is more consistent. Putting it into different Tomcat installations in development, test or production environments has the same result.</p>
+<p>This is also true for development: a new team member just has to download the default Tomcat distribution, fetch the application from the SCM system and start it up. All the required dependencies will be fetched via maven or ivy and put into the application. Requiring developers to put something into their local Tomcat installation (or <strong>even worse into their JDK</strong>) leads to different development environments across the team and issues that are very hard to track.</p>
+<p>To support my arguments I did some research and found this article about <a href="http://www.mulesoft.com/tomcat-classpath">Understanding The Tomcat Classpath</a> from MuleSoft. MuleSoft provides a <strong>great Tomcat Enterprise Server named tcat</strong> with many management and monitoring features. In the article they discuss common problems and solutions for Tomcat classpath problems and provide tips and best practice advices. Their best practice advice is:</p>
+<blockquote>
+<ul>
+<li> <strong>Avoid loading libraries and packages other than the standard ones  distributed with Tomcat using the Commons Loader</strong>.  This can cause  compatibility errors.  If you need to share a single library or package  between multiple applications, create &#8220;shared/lib&#8221; and &#8220;shared/classes&#8221;  directories and configure them under the Shared loader in  catalina.properties</li>
+<li> An exception to this rule is any common third party shared library,  such as a JDBC driver.  These should be placed directly into  $CATALINA_HOME/lib</li>
+<li> When possible, it is a good idea to use Apache Tomcat as recommended  by its developers, as this represents conformance to the Servlet  specification.  <strong>If you&#8217;re finding that you have to configure classpath  rather frequently, you may want to re-think your development process.</strong></li>
+</ul>
+</blockquote>
+<p>Additionally I posted a question on Stackoverflow about <a href="http://stackoverflow.com/questions/6397334/third-party-libraries-best-practice-in-tomcat">Third party libraries best practice in Tomcat</a>. I think the answers pretty much support me in my opinion.</p>

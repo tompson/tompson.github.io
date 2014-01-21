@@ -1,0 +1,22 @@
+---
+layout: post
+title: A fresh start
+categories:
+- General
+tags: []
+status: publish
+type: post
+published: true
+meta:
+  _edit_last: '1'
+  _wpas_done_all: '1'
+---
+Today I deleted my blog - not intentionally, it happened. I tried to upgrade MySQL from 5.1 to 5.5, it did not work as expected. I tried varios things and somewhere in between I issued the wrong rm command. I deleted both the backup directory and the tgz of the mysql database directory I made before the update.
+
+After a short heat flash I thought: ok, know I have to import the database again from the SQL dump I have on my <strong>Amazon S3</strong>. A script copies it there every night. After extracting the tgz from S3 I was shocked that the sql file had a <strong>zero byte file size</strong>. It turned out that the backup script used an <strong>old password for the mysqldump command</strong> so it was not able to backup for over a year and I do not have any older backup file.
+
+I am starting to accept that I lost most of the blog content I created since June 2005 (!!) though I can not fully accept it at the moment. There is something in me that thinks that there has to be another backup somewhere ...
+
+Some of the content could be restored from the web archive or Google cache and I think I will do that within the next weeks.
+
+Seems like this is another hard lessons to learn, more backups in the future, better checks of those backups to make sure they work and being more careful with the rm command.

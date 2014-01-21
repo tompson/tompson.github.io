@@ -1,0 +1,17 @@
+---
+layout: post
+title: Microsoft Exchange Server messes up multipart alternative messages
+categories: []
+tags: []
+status: publish
+type: post
+published: true
+meta:
+  _edit_last: '1'
+  _wpas_done_all: '1'
+---
+<p>For our product <a href="http://timr.com">timr</a> we are currently implementing new HTML email templates for sending registration mails and other information. The application is based using the Spring Framework and we use Velocity templates for creating the emails.</p>
+<p>I put a lot of time into making sure that the emails are displayed correct in as many email clients as possible and we are adding a plain text alternative too. The plain text alternative is included in the mail via <strong>multipart/alternative</strong>. I tried sending the mails to my private gmail account and my company account viewing the received mails via the browser interfaces (gmail and outlook web) and different clients (Outlook, Apple Mail, Thunderbird, &#8230;).</p>
+<p>While doing these tests I noticed something I could not explain: The emails sent to my office account <strong>did not allow me to view the plain text alternative</strong> regardless of which client I used.  After wondering a while I started to look for possible explanations and found out that this was caused by the Microsoft Exchange Server we are using.</p>
+<p>It seems like the Microsoft Exchange Server decides which part of an email the user can see. Unlike defined in the email standard, where the user (or the client that is used to view the email) decides which part of the email should be displayed. But this is not the first case where Microsoft does not comply with the standards (looking at you Internet Explorer!)</p>
+<p>There is <a href="http://www.eggheadcafe.com/microsoft/Exchange-Clients/30509248/preventing-exchange-from-messing-up-multipartalternative-messages.aspx">a forum discussion about this topic here</a>, which is kind of funny to read (flamewar).</p>

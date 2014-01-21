@@ -1,0 +1,18 @@
+---
+layout: post
+title: Default Rounding Mode in Java
+categories: []
+tags: []
+status: publish
+type: post
+published: true
+meta:
+  _edit_last: '1'
+  _wpas_done_all: '1'
+---
+<p><img class="alignright size-full wp-image-271" title="java logo" src="http://dertompson.com/wp-content/uploads/2007/08/java-logo-thumb.png" alt="java logo" width="94" height="150" />Lately I was a bit surprised when I found out that the default rounding mode in Java is something called &#8220;half even&#8221;. <a href="http://java.sun.com/j2se/1.5.0/docs/api/java/math/RoundingMode.html">This API docs page</a> provides good information about rounding in Java. For HAVE_EVEN it says:</p>
+<blockquote><p>Rounding mode to round towards the &#8220;nearest neighbor&#8221;  unless both neighbors are equidistant, in which case, round  towards the even neighbor.  Behaves as for  <tt>RoundingMode.HALF_UP</tt> if the digit to the left of the  discarded fraction is odd; behaves as for  <tt>RoundingMode.HALF_DOWN</tt> if it&#8217;s even.  Note that this  is the rounding mode that statistically minimizes cumulative  error when applied repeatedly over a sequence of calculations.  It is sometimes known as &#8220;Banker&#8217;s rounding,&#8221; and is  chiefly used in the USA.  This rounding mode is analogous to  the rounding policy used for <tt>float</tt> and <tt>double</tt> arithmetic in Java.</p></blockquote>
+<p>An example makes it clear:</p>
+<p><code>new java.text.DecimalFormat("0.00").format(23.515) -&gt; result is "23.52"<br />
+new java.text.DecimalFormat("0.00").format(23.525) -&gt; result is "23.52"</code></p>
+<p>This was a bit confusing for me because in Austria the &#8220;default rounding mode&#8221; is &#8220;half up&#8221;. So to set the rounding mode to HALF_UP I had to use the method <code>setRoundingMode</code> (which is available sind Java 1.6). In older version of Java you have to use <code>BigDecimal</code>&#8216;sÂ  <code>setScale</code> method.</p>

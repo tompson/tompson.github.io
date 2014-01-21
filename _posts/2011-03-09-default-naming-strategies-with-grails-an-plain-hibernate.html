@@ -1,0 +1,24 @@
+---
+layout: post
+title: Default naming strategies with Grails an plain Hibernate
+categories: []
+tags: []
+status: publish
+type: post
+published: true
+meta:
+  _edit_last: '1'
+  _wpas_done_all: '1'
+---
+<p>Last year (damn so long ago? seems like last week) I wrote<a href="http://dertompson.com/2010/10/17/be-careful-when-reusing-hibernate-domain-model-in-grails/"> a post about naming strategies and reusing an existing Hibernate domain model in a Grails app</a>. I stumbled across this because I created a Grails application that is used as a &#8220;back office&#8221; management application for <a href="http://timr.com">our time tracking product timr.com</a> the uses the existing Hibernate domain model classes from the Spring application. There has also been <a href="http://blog.springsource.com/2010/08/26/reuse-your-hibernatejpa-domain-model-with-grails/">a blog post on the official Springsource blog about this</a> where I made a comment.</p>
+<p>Lately I tried to upgrade the Grails application from 1.3.4 to a never version. I tried version 1.3.5 last year and version 1.3.6 later. Both made problem with the naming strategy reoccur. I had no time to look into the details but today I gave it another try with the newest Grails release 1.3.7. It again modified my existing database and created tables and columns with a different naming strategy (having <code>dbCreate</code> set to <code>update</code>).</p>
+<p>I found out that <a href="http://jira.codehaus.org/browse/GRAILS-6546">this issue</a> and <a href="https://github.com/grails/grails-core/commit/5171b2b61bed0bb93e4e0cf7f4f4e69663e2a6ea">the patch for it</a> caused the change in the behavior between 1.3.4 and 1.3.5. As you can see from the patch the GrailsAnnotationConfiguration.java (which has to be configured in Grails to use existing Hibernate domain classes) looks for a <code>naming_strategy</code> config setting. <a href="http://grails.org/doc/latest/guide/5.%20Object%20Relational%20Mapping%20(GORM).html#5.5.2.12%20Custom%20Naming%20Strategy">The Grails documentation</a> says you have to configure <code>hibernate.naming_strategy</code> for GORM which means you have to define two values if you want to have the same naming strategy for GORM and the existing domain classes.</p>
+<p>If the values are not used Grails uses the <code>ImprovedNamingStrategy</code> for both GORM and the Hibernate domain classes. By debugging into the Hibernate configuration of my project I found out that using Hibernate Annotations automatically configures the <code>EJB3NamingStrategy</code>. So I had to configure this strategy both for <code>hibernate.naming_strategy</code> and <code>naming_strategy</code>. To make it clearer I also configured it explicitly in my Spring project:</p>
+<pre class="brush: xml">
+<bean id="sessionFactory" class="o.s.orm.hibernate3.annotation.AnnotationSessionFactoryBean">
+		...
+	<property name="namingStrategy" ref="ejb3NamningStrategy" />
+</bean>
+	
+<bean id="ejb3NamningStrategy"  class="org.hibernate.cfg.EJB3NamingStrategy"/>
+</pre>

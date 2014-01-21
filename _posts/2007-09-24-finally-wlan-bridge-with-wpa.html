@@ -1,0 +1,30 @@
+---
+layout: post
+title: Finally WLAN bridge with WPA
+categories: []
+tags: []
+status: publish
+type: post
+published: true
+meta:
+  _edit_last: '1'
+  _wpas_done_all: '1'
+---
+<p><img src="http://dertompson.com/wp-content/uploads/2007/09/wireless2-icon.png" class="alignright" alt="Wireless" />Ten days ago I installed my new <a href="http://www.amazon.de/gp/redirect.html?ie=UTF8&amp;location=http%3A%2F%2Fwww.amazon.de%2Fdp%2FB000BZURG6%3Fpf%5Frd%5Fm%3DA1IDDPBG1NC5TQ%26pf%5Frd%5Fs%3Dcenter-2%26pf%5Frd%5Fr%3D1Z8DZR7N43K7534AX23X%26pf%5Frd%5Ft%3D101%26pf%5Frd%5Fp%3D125823091%26pf%5Frd%5Fi%3D301128&amp;site-redirect=de&amp;tag=tsb0f-21&amp;linkCode=ur2&amp;camp=1638&amp;creative=6742">Linksys Router WRT45G</a><img src="http://www.assoc-amazon.de/e/ir?t=tsb0f-21&amp;l=ur2&amp;o=3" style="border: medium none  ! important; margin: 0px ! important" border="0" height="1" width="1" /> router and set up a wireless bridge for my home network. I had some problems with getting everything working like I wanted it to &#8211; <a href="http://dertompson.com/index.php/2007/09/13/setting-up-a-wireless-bridge/">see my post</a>.</p>
+<p>Today I took another attempt and was successful. Now I got a secure wireless connection in bridge mode. I wanted WPA because it is much more secure than WEP and in bridge mode it is easier to reach all my devices. Here is my configuration:<br />
+<code><br />
+nvram set wl0_mode=wet<br />
+nvram set lan_ifnames="vlan0 eth1"<br />
+nvram set wan_ifname=vlan1<br />
+lan_gateway=192.168.1.254<br />
+lan_dns=112.23.54.5</code></p>
+<p><code>ifdown wan<br />
+nvram set wl0_ssid=MYSSID<br />
+nvram set wl0_channel=7<br />
+nvram set wl0_akm=psk<br />
+nvram set wl0_crypto=aes<br />
+nvram set wl0_wpa_psk=WPAKEY<br />
+nvram set wl0_auth=0<br />
+ifup wan; /sbin/wifi</code></p>
+<p><code>nvram commit;</code></p>
+<p>For more information about the parameters see the <a href="http://wiki.openwrt.org/">OpenWRT wiki</a>.</p>

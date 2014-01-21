@@ -1,0 +1,132 @@
+---
+layout: post
+title: Java Bean Getters/Setters
+categories:
+- Development
+- Java
+tags: []
+status: publish
+type: post
+published: true
+meta:
+  _edit_last: '1'
+  _wpas_done_all: '1'
+---
+Many Java developers think they know everything about Java Beans and the correct getter/setter styles, but there are some hidden traps ;-)
+
+Let's do a little quiz!
+
+How should the correct and getter/setter for a property with the following field look like?
+<pre name="code" class="Java">private String name;</pre>
+This is an easy one:
+<pre name="code" class="Java">public String getName() {
+  return name;
+}
+
+public void setName(String name) {
+  this.name = name;
+}</pre>
+
+Notice that the first letter of the field was made uppercase. 
+
+Here is a different one:
+
+<pre name="code" class="Java">private String URL;</pre>
+
+The correct getter/setter methods would look like:
+
+<pre name="code" class="Java">public String getURL() {
+  return URL;
+}
+
+public void setURL(String URL) {
+  this.URL = URL;
+}</pre>
+
+In this example the field was already uppercase so nothing was changed in the getter/setter.
+
+So what's about a field like this:
+
+<pre name="code" class="Java">private String iMessageId;</pre>
+
+This one is a little bit tricky - could you guess the correct getter/setter?
+
+<pre name="code" class="Java">public String getiMessageId() {
+  return iMessageId;
+}
+
+public void setiMessageId(String iMessageId) {
+  this.iMessageId = iMessageId;
+}</pre>
+
+It is important that the case was not changed - like for the URL field. This happens when the second letter of the field name is already uppercase. The reason for this is the method java.beans.Introspector.decapitalize:
+
+<pre name="code" class="Java">/**
+ * Utility method to take a string and convert it to normal Java variable
+ * name capitalization.  This normally means converting the first
+ * character from upper case to lower case, but in the (unusual) special
+ * case when there is more than one character and both the first and
+ * second characters are upper case, we leave it alone.
+ * <p>
+ * Thus "FooBah" becomes "fooBah" and "X" becomes "x", but "URL" stays
+ * as "URL".
+ *
+ * @param  name The string to be decapitalized.
+ * @return  The decapitalized version of the string.
+ */
+public static String decapitalize(String name) {
+	if (name == null || name.length() == 0) {
+		return name;
+	}
+	if (name.length() > 1 && Character.isUpperCase(name.charAt(1)) &&
+					Character.isUpperCase(name.charAt(0))){
+		return name;
+	}
+	char chars[] = name.toCharArray();
+	chars[0] = Character.toLowerCase(chars[0]);
+	return new String(chars);
+}</pre>
+
+I guess this one was new to some of you, wasn't it?
+
+The last example applies to boolean properties. We know that the getter/setter for 
+
+<pre name="code" class="Java">private boolean active;</pre>
+
+may look like 
+
+<pre name="code" class="Java">public boolean isActive() {
+  return active;
+}
+
+public void setActive(boolean active) {
+  this.active = active;
+}</pre>
+
+or 
+
+<pre name="code" class="Java">public boolean getActive() {
+  return active;
+}
+
+public void setActive(boolean active) {
+  this.active = active;
+}</pre>
+
+But not everybody knows that the getter/setter for a property of the type Boolean:
+
+<pre name="code" class="Java">private Boolean closed;</pre>
+
+must look like
+
+<pre name="code" class="Java">public Boolean getClosed() {
+  return closed;
+}
+
+public void setClosed(Boolean closed) {
+  this.closed = closed;
+}</pre>
+
+the getter <code>isClosed()</code> would not be recognized. 
+
+Not to long ago even <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=154823">Eclipse code generators made mistakes</a> with those edge cases - I checked today and both IntelliJ and Eclipse generated everything correct. If you want to look into the specification you can do this <a href="http://www.oracle.com/technetwork/java/javase/documentation/spec-136004.html">here</a>.

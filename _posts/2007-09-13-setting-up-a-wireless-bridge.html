@@ -1,0 +1,37 @@
+---
+layout: post
+title: Setting up a wireless bridge
+categories: []
+tags: []
+status: publish
+type: post
+published: true
+meta:
+  _edit_last: '1'
+  _wpas_done_all: '1'
+---
+<p><img src="http://dertompson.com/wp-content/uploads/2007/09/wireless2-icon.png" class="alignleft" alt="Wireless" />Two weeks ago I moved to a new flat. This means a lot of work &#8211; one of my tasks was to set up the home network (while my wife&#8217;s task was to think about the color of the curtains <img src='http://dertompson.com/wp-includes/images/smilies/icon_wink.gif' alt=';)' class='wp-smiley' /> </p>
+<p>I had to connect five devices: workstation, notebook, XBOX, VDR and a Linux server. While the workstation and the notebook are situated in my workroom the others are placed in the living room.</p>
+<p>I did not want to screw a lot of holes in walls and/or the floor so I decided to connect the two small LAN wireless. In my exiting network I already had a <a href="http://www.amazon.de/gp/redirect.html?ie=UTF8&amp;location=http%3A%2F%2Fwww.amazon.de%2FLinksys-WAP54G-Wireless-802-11g-802-11b%2Fdp%2FB0000AG8TX%3Fie%3DUTF8%26s%3Dce-de%26qid%3D1189718202%26sr%3D8-33&amp;site-redirect=de&amp;tag=tsb0f-21&amp;linkCode=ur2&amp;camp=1638&amp;creative=6742">Linksys Access Point</a><img src="http://www.assoc-amazon.de/e/ir?t=tsb0f-21&amp;l=ur2&amp;o=3" style="border: medium none  ! important; margin: 0px ! important" border="0" height="1" width="1" /> so I ordered a <a href="http://www.amazon.de/gp/redirect.html?ie=UTF8&amp;location=http%3A%2F%2Fwww.amazon.de%2Fdp%2FB000BZURG6%3Fpf%5Frd%5Fm%3DA1IDDPBG1NC5TQ%26pf%5Frd%5Fs%3Dcenter-2%26pf%5Frd%5Fr%3D1Z8DZR7N43K7534AX23X%26pf%5Frd%5Ft%3D101%26pf%5Frd%5Fp%3D125823091%26pf%5Frd%5Fi%3D301128&amp;site-redirect=de&amp;tag=tsb0f-21&amp;linkCode=ur2&amp;camp=1638&amp;creative=6742">Linksys Router WRT45G</a><img src="http://www.assoc-amazon.de/e/ir?t=tsb0f-21&amp;l=ur2&amp;o=3" style="border: medium none  ! important; margin: 0px ! important" border="0" height="1" width="1" /> to create my wireless network bridge.</p>
+<p>There is a project called <a href="http://openwrt.org/">OpenWrt </a>that provides a free open source firmware for this router (and many ohters). I downloaded the correct firmware as described <a href="http://wiki.openwrt.org/OpenWrtDocs/Installing">here</a>. In my case it was the <a href="http://downloads.openwrt.org/whiterussian/newest/default/openwrt-wrt54g-squashfs.bin">latest White Russian for wrt54g.</a></p>
+<p>After flashing my router through the original web interface the web interface of OpenWrt showed up, I set a root password and could connect to the device via ssh. Great!</p>
+<p>I tried to configure the router for bridged client mode with WPA PSK encryption as described in the <a href="http://wiki.openwrt.org/ClientModeHowto">ClientModeHowto </a>but I had no luck. After two hours playing around with various nvram variables and starting over again and again by resetting the router to the defaults (<code>mtd -r erase nvram</code>) I tried a different setup.</p>
+<p>I configured my access point security to WEP and tried the routed client mode &#8211; and it worked! Here are the configuration changes I made:</p>
+<p><code><br />
+nvram set wl0_mode=sta<br />
+nvram set lan_ifname=br0<br />
+nvram set lan_ifnames=vlan0<br />
+nvram set wan_ifname=eth1<br />
+nvram set lan_ipaddr=192.168.2.1<br />
+nvram set lan_proto=static<br />
+nvram set wan_proto=dhcp</code><br />
+<code><br />
+ifdown wan<br />
+nvram set wl0_ssid=MYSSID<br />
+nvram set wl0_channel=7<br />
+nvram set wl0_wep=enabled<br />
+nvram set wl0_key=1<br />
+nvram set wl0_key1=WEPKEY<br />
+ifup wan; /sbin/wifi</code></p>
+<p>Seems like either WPA or bridged client mode was the problem or both or the combination.</p>
+<p>I think I will give them a try when again when I have more time. WPA for security reasons and bridged client mode for easier network setup/communication.</p>

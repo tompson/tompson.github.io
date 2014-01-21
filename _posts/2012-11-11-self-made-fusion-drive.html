@@ -1,0 +1,39 @@
+---
+layout: post
+title: Self made Fusion Drive
+categories: []
+tags: []
+status: publish
+type: post
+published: true
+meta:
+  _edit_last: '1'
+  _wpas_done_all: '1'
+---
+<p><img class="alignleft size-full wp-image-1058" title="Fusion-Drive-logo-Apple" src="/wp-content/uploads/2012/11/Fusion-Drive-logo-Apple1.jpg" alt="" width="225" height="235"><br>
+After reading <a href="https://twitter.com/jollyjinx">@jollyjinx</a> <a href="http://jollyjinx.tumblr.com/post/34638496292/fusion-drive-on-older-macs-yes-since-apple-has">posts on tumblr</a> about his experiments with Fusion Drive on older Macs I wondered if this might be possible with my configuration too. Some more googeling brought up <a href="http://tomasz.korwel.net/2012/11/04/apple-fusion-drive-on-late-2010-macbook-pro/">this post of Tomasz Korwel</a> who created a bootable Fusion Drive on his MacBook Pro Late 2010 – which me made me very sure that it would work on my MacBook Pro 15″ Mid 2010. An Austrian iOS developer colleague trying it to on his iMac and <a href="http://www.cocoanetics.com/2012/11/fusion-drive-for-everybody/">blogging about it</a> finally convinced me that I have to try it myself.</p>
+<p>The most interesting part of Fusion Drive for me was, that is just a Software feature – it does not depend on any specific hardware. When Apple announced that their new<a href="http://www.apple.com/imac/performance/"> iMacs would have the option for a Fusion Drive</a>, I though it would be a special harddisk containing an SSD and a spinning disk in one case. But in fact you can create a Fusion Drive out of any disks in you Mac by using features of the built in CoreData storage system.</p>
+<p><strong>Why would you want a Fusion Drive?</strong><br>
+For not having to think about where to put which file.</p>
+<p><strong>What does that mean?</strong><br>
+I am using my MacBook Pro with a 160 GB Intel X-25 SSD and a Toshiba 500 GB harddisk since I bought it in May 2010. When I bought the MacBook I moved the SSD over from the Dell notebook, I was using before, and put the Toshiba Hardisk into an <a href="http://www.mcetech.com/optibay/">Optibay</a> while removing the DVD drive. I put almost everything on my SSD: operating system, application, documents, source code. I used the harddisk only for “big data” like movies, music, pictures, virtual machines, downloads, disk images. This setup works great until one of the disks gets full and the other one has space, you start to move things around, you need the changes paths or make links – this is ugly.</p>
+<p><strong>How to get a Fusion Drive?</strong><br>
+First I made a backup of my two disk with <a href="http://www.bombich.com/index.html">Carbon Copy Cloner</a> to two partitions on an external drive, this way I did not have to reinstall my system.</p>
+<p>I booted from a USB thumb drive containing the Mountain Lion installer and went into the Terminal app. There I executed the command</p>
+<p><code>diskutil list</code></p>
+<p>to list all my drives:</p>
+<p><a href="/wp-content/uploads/2012/11/IMG_1536.jpg"><img class="aligncenter size-full wp-image-1062" title="IMG_1536" src="/wp-content/uploads/2012/11/IMG_1536.jpg" alt="" width="1024" height="768"></a></p>
+<p>The list showed me that my SSD was disk0 and the Toshiba harddrive was disk1 so I ran the following command:</p>
+<p><code>diskutil cs create FusionDrive disk0s2 disk1s2</code></p>
+<p>which created a Logical Volume Group out of the two disk:</p>
+<p><a href="/wp-content/uploads/2012/11/IMG_1537.jpg"><img class="aligncenter size-full wp-image-1065" title="IMG_1537" src="/wp-content/uploads/2012/11/IMG_1537.jpg" alt="" width="1024" height="768"></a></p>
+<p>On this Logical Volume Group I could created a filesystem by running the command</p>
+<p><code>diskutil cs createVolume E8E5214B-BD8D-4023-839E-99E42FA63485 jhfs+ FusionHD 650GB</code></p>
+<p>Finished. After leaving the Terminal the new FusionHD showed up with 650 GB capacity in the Mountain Lion installer. I did not install the system but restarted and booted from the external disk containing the clone I made before. I restored the backup of my SSD to the newly created FusionHD and was immediately able to boot from the Fusion Drive.</p>
+<p>The last step was to copy back my media files from the backup of my harddisk wich went smooth to. Everything is running fine so far and I got enough space on my combined two disks again.</p>
+<p>This is how the output of</p>
+<p><code>diskutil cs list</code></p>
+<p>now looks like:</p>
+<p><a href="http://dertompson.com/wp-content/uploads/2012/11/Screen-Shot-2012-11-11-at-21.31.55.png"><img class="aligncenter size-large wp-image-1068" title="Screen Shot 2012-11-11 at 21.31.55" src="/wp-content/uploads/2012/11/Screen-Shot-2012-11-11-at-21.31.55-1024x755.png" alt="" width="625" height="460"></a></p>
+<p><strong>What are the drawbacks of this?</strong><br>
+You will have to take more care about backups, because now, if one of two disks fails, you will have a problem. I am used to this because I worked on a striped disk array for a long time and I already have a good backup strategy in place.</p>

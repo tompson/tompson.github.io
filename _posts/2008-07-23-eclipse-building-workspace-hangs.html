@@ -1,0 +1,14 @@
+---
+layout: post
+title: Eclipse building workspace hangs
+categories: []
+tags: []
+status: publish
+type: post
+published: true
+meta:
+  _edit_last: '1'
+  _wpas_done_all: '1'
+---
+Today I encountered the problem that every time I started one of my Eclipse workspaces it always started to build the workplace and could not finish it. The progress monitor showed additional tasks waiting but I could not stop them. After killing the Java VM process several times and starting up again I searched for a solution and <a href="http://www.eclipsezone.com/eclipse/forums/t61566.html">found this page</a>.</p>
+<p>I already heard about the <code>clean</code> command line argument and after adding it to the command line it resolved my problem. I will not add this permanently to my Eclipse links because it takes significantly longer to start up but I did a good job to fix the workspace.</p>

@@ -1,0 +1,15 @@
+---
+layout: post
+title: Disabling RAID autodetection in Ubuntu
+categories: []
+tags: []
+status: publish
+type: post
+published: true
+meta:
+  _edit_last: '1'
+  _wpas_done_all: '1'
+---
+<p><img src="http://dertompson.com/wp-content/uploads/2007/11/images2.jpg" class="alignright" alt="Tux" />Last week I removed two mirrored hard disks from my old home server running Ubunut 6.06 LTS and put them into my new VDR. After that I was not able to boot the server again. It always stopped saying something about &#8220;&#8230; RAID autodetection &#8230;&#8221;</p>
+<p>So RAID autodetection is a nice feature when you want to have your RAID devices available after booting the system but what if you want to get rid of it? I used an Ubuntu 7.10 alternate CDROM to boot into rescue mode. There I first removed the <code>md</code> device entries from <code>/etc/fstab</code>. But a reboot showed that the system still searched for a RAID and was not able to start. Removing the entries from <code>/etc/mdadm/mdadm.conf</code> did not improve the situation either.</p>
+<p>Then I found <a href="http://ubuntuforums.org/archive/index.php/t-115047.html">this Ubuntu forum post</a> recommending deleting the file <code>/usr/share/initramfs-tools/scripts/local-top/md</code> and to <code>update-initramfs</code>. This should work but for me the easiest solution was to run <code>apt-get remove mdadm</code> which updated the initial ramdisk too.</p>

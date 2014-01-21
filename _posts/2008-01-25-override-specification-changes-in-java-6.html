@@ -1,0 +1,17 @@
+---
+layout: post
+title: '@Override specification changes in Java 6'
+categories: []
+tags: []
+status: publish
+type: post
+published: true
+meta:
+  _edit_last: '1'
+  _wpas_done_all: '1'
+  _wpas_skip_3401315: '1'
+  _wpas_skip_3401319: '1'
+---
+<p>Between Java 5 and Java 6 changes to the specification of @Override have been made. In Java 6 it is possible to add the @Override annotation to methods that implement methods of an interface which is not allowed in Java 5.</p>
+<p>I noticed the difference when a friend told me that he had to remove all the @Override annotations to make his Java 6 project compile with Java 5.</p>
+<p>The interesting thing is that there is no documentation about this change. The API specification of @Override is exactly the same in both Java versions. I found out that this was forgotten by Sun developers. <a href="http://blogs.sun.com/ahe/entry/override_snafu">Peter, a former developer at Sun, calls it the @Override Snafu</a>.</p>

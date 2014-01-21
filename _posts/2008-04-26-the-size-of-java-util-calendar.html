@@ -1,0 +1,15 @@
+---
+layout: post
+title: The size of java.util.Calendar
+categories: []
+tags: []
+status: publish
+type: post
+published: true
+meta:
+  _edit_last: '1'
+  _wpas_done_all: '1'
+  _wpas_skip_3401315: '1'
+  _wpas_skip_3401319: '1'
+---
+<p><img class="alignleft size-full wp-image-271" title="java logo" src="/wp-content/uploads/2007/08/java-logo-thumb.png" alt="" width="94" height="150">A friend of mine asked me why his Java batch job reading a 23MB text file took over 300MB Memory. He read some text and date values and stored them in String an Calendar objects. A short web search brought up <a href="http://javaquirks.blogspot.com/2008/03/size-of-javautilcalendar-is-432-bytes.html">this blog post of Jason Rennie</a> writing about the size of java.util.Calendar. He points out that a single instance of java.util.Calendar takes 432 bytes of memory. This was the explanation – 500000 calendar objects need 206MB memory! This was new to me …</p>

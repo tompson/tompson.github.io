@@ -1,0 +1,36 @@
+---
+layout: post
+title: Using column alias in GORM criterias
+categories: []
+tags: []
+status: publish
+type: post
+published: true
+meta:
+  _edit_last: '1'
+  _wpas_done_all: '1'
+---
+<p>Last week I tried to create GORM criteria that shows from which countries the addresses stored in a table were. The SQL for this would look something like this:</p>
+<pre class="brush: sql">select c.code, count(*) from Address a left outer join Country c on a.country=c.id group by c.code</pre>
+<p>Now I wanted to sort the results with the country the most addresses were from on top. This SQL would look like:</p>
+<pre class="brush: sql">select c.code, count(*) as co from Address a left outer join Country c on a.country=c.id group by c.code order by co desc</pre>
+<p>I had to add the &#8220;as co&#8221; alias to the count column to use it in the order command at the end of the SQL. How could this be done in a GORM criteria? The basic criteria with the result of the first SQL looked like:</p>
+<pre class="brush: groovy">Address.createCriteria().list {
+	country {
+		projections {
+			groupProperty('code')
+			rowCount()
+		}
+	}
+}</pre>
+<p>The question was how to add the &#8220;as co&#8221; alias to the row count column? In the Hibernate the Projections allow that by using the <code>as</code> method but how to do that in the GORM criteria DSL? I turned out the following way:</p>
+<pre class="brush: groovy">Address.createCriteria().list {
+	country {
+		projections {
+			groupProperty('code')
+			rowCount('co')
+		}
+	}
+	order('co', 'desc')
+}</pre>
+<p>You can give the alias to the projection as an additional parameter (or as the only parameter in case of <code>rowCount</code>).</p>

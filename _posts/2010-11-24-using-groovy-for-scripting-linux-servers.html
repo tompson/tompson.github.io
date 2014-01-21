@@ -1,0 +1,52 @@
+---
+layout: post
+title: Using groovy for scripting linux servers
+categories: []
+tags: []
+status: publish
+type: post
+published: true
+meta:
+  _edit_last: '1'
+  _wpas_done_all: '1'
+---
+<p>Today I wanted to add some more graphs to our <a href="http://munin-monitoring.org/">munin</a> server monitoring. One graph should check the ftp backup server and plot how many of the available 100GB space is already used. Another graph should display the current sessions on out tomcat servers.</p>
+<p>The munin documentation should how easy it is to create a plugin but I am not an advanced shell script programmer so I gave groovy a try. As I am a Java developer and I am using Grails in many of our latest projects groovy is a known environment for me.</p>
+<p>I found some useful links that helped me doing the tasks I wanted to to with groovy in the munin plugins:</p>
+<ul>
+<li><a href="http://eriwen.com/groovy/groovy-shell-scripts/">Eric Wendelin&#8217;s blog post</a> is a great introduction to using groovy for shell script</li>
+<li><a href="http://devilelephant.blogspot.com/2007/03/groovy-process-piping.html">this post on devilelephant</a> helped me with piping output from one process to another</li>
+<li>Mytechtoday has a post about how to access <a href="http://www.mytechtoday.com/2009/01/read-environment-variables-with-groovy.html">environment variables in groovy</a></li>
+</ul>
+<p>This simple groovy script allows me now to track active tomcat sessions via munin by calling the manager app:</p>
+<pre class="brush: groovy">
+#!/usr/bin/env groovy
+
+def env = System.getenv()
+
+def user = env['user'] ?: 'munin'
+def password = env['password'] ?: 'munin'
+def host = env['host'] ?: '127.0.0.1'
+def port = env['ports'] ?: '8080'
+
+def responsetext = "curl http://$user:$password@$host:$port/manager/list".execute().text
+
+if (this.args.size() > 0 &#038;&#038; this.args[0] == 'config') {
+    println 'graph_title Tomcat 2 sessions'
+    println 'graph_category tomcat'
+    responsetext.eachLine { line ->
+    def parts = line.split(':')
+        if (parts.size() > 1) {
+            println parts[3] + '.label ' + parts[3]
+        }
+    }
+    System.exit(1)
+}
+
+responsetext.eachLine { line ->
+    def parts = line.split(':')
+    if (parts.size() > 1) {
+        println parts[3] + '.value ' + parts[2]
+    }
+}
+</pre>

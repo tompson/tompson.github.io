@@ -1,0 +1,32 @@
+---
+layout: post
+title: Get rid of useless Windows restrictions
+categories: []
+tags: []
+status: publish
+type: post
+published: true
+meta:
+  _edit_last: '1'
+  _wpas_done_all: '1'
+---
+<p><img src="http://dertompson.com/wp-content/uploads/2007/12/lock.png" class="alignright" alt="Lock" />Sometimes you have to accomplish work on a windows PC where you do not have administrator privileges. This can be quite frustrating if you are a power user and you are used to your shortcuts and tools. Here are some tips to get rid of useless limitations some system administrators may have configured to your workstation.</p>
+<p>To adapt the system to your needs you have to use two tools:</p>
+<ol>
+<li>
+<p style="margin-bottom: 0cm">The group policy editor. To open 	it run <code>gpedit.msc</code> from the command line.</p>
+</li>
+<li>The Registry editor which may be started by executing regedit 	from the command line. If you get the message that you are not 	allowed to change registry keys you first have to use the Group 	Policy editor to set the value of <code>"Prevent access to 	registry editing tools"</code> under <code>User Configuration 	-&gt; Administrative Templates -&gt; System</code> to <code>Disabled</code>.</li>
+</ol>
+<p>Most of the following changes can be done by using the Group Policy editor or the registry editor, choose your preferred method.</p>
+<ul>
+<li>
+<p style="margin-bottom: 0cm">No &#8220;Run&#8230;&#8221; entry in 	your start menu &#8211; I do not ask myself why this should be disabled 	but all you have to do is to open the registry and go to 	<code>HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer</code>. 	There change the value of <code>NoRun</code> to <code>0</code>. In 	the group policy editor you have to set <code>"Remove Run menu 	from Start Menu"</code> under <code>User Configuration -&gt; 	Administrative Templates -&gt; Start Menu and Taskbar</code> to 	<code>Disabled</code>.</p>
+</li>
+<li>
+<p style="margin-bottom: 0cm">One of my favorite keyboard 	shortcut is Windows-Key + E to launch the Windows Explorer. I found 	out that it not work if the Control Panel is not shown in the Start 	Menu. To enable the shortcut go to <code>User Configuration -&gt; 	Administrative Templates -&gt; Control Panel</code> in the Group 	Policy editor and disable â€œProhibit access to the Control Panelâ€ </p>
+</li>
+<li>
+<p style="margin-bottom: 0cm">To allow you to configure the 	Internet Explorer if you need it for testing web applications you 	can enable the Internet Options dialog under <code>User 	Configuration -&gt; Administrative Templates -&gt; Windwos 	Components -&gt; Internet Explorer -&gt; Internet Control Panel</code></p>
+</li>
+</ul>

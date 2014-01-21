@@ -1,0 +1,20 @@
+---
+layout: post
+title: The m2e connectors mess
+categories: []
+tags: []
+status: publish
+type: post
+published: true
+meta:
+  _edit_last: '1'
+  _wpas_done_all: '1'
+---
+<p>I am using <a href="http://www.springsource.com/developer/sts">Spring Source Toolsuite</a> as my favorite Eclipse distribution for about two years now and I am very happy with it. It contains most of the plugins I use prepacked and it easy to install the rest via the provided extension list: grails, groovy, m2e, egit, subversive, mylyn &#8230;</p>
+<p>With versions 2.8.0 STS suddenly included a completely new version 1.0 of m2e (the maven plugin for eclipse) which is incompatible to the old 0.9.x versions. Projects had to be converted and suddenly <a href="http://wiki.eclipse.org/M2E_plugin_execution_not_covered">some of the maven plugins I used were not supported anymore</a>.</p>
+<p>In my case especially the JAXB2 generation plugin made problems because it was not executed anymore. I had to add a separate plugin entry to my pom file to get it work again. But still the generated java files were not added to the build path anymore &#8211; adding the manually was no option because every time I executed &#8220;Update project configuration&#8221; it was removed again.</p>
+<p>Of course there were already <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=350299">other people having the same problems</a>. <a href="http://grumpyapache.blogspot.com/2011/08/mess-that-is-m2e-connectors.html">There are people</a> that are very unhappy with the current direction of the m2e plugin end Eclipse plugins in general.</p>
+<p>It seems that the m2e refactoring was made to solve issues with plugins that modified the filesystem to often which made the developer doing refresh/clean cycle to often:</p>
+<blockquote><p>Probably even worse, it did not *always* work for many projects, so we had to go through series of refresh/update dependencies/update configuration/rebuild voodoo (or &#8220;m2eclipse dance&#8221; as some called it) to get projects in a good state. For example MNGECLIPSE-823 was the most voted issue in m2e jira and it was a direct manifestation of this &#8220;flakiness&#8221;.</p></blockquote>
+<p>This even triggered a STS 2.8.1 release shortly after the 2.8.0 release that came with the ability to downgrade the m2e plugin to the old 0.9.x version. </p>
+<p>I decided to go with the new version and did some more research. It turns out that you need to add the matching m2e connector plugin for any maven plugin you want to use. Via Preferences -> Maven -> Discover I was able to find a JAXB connector which I installed. To get it working I had to upgrade the m2e plugin manually to 1.1 via <a href="http://download.eclipse.org/technology/m2e/milestones/1.1/">http://download.eclipse.org/technology/m2e/milestones/1.1/</a></p>

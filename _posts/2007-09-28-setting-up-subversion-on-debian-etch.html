@@ -1,0 +1,31 @@
+---
+layout: post
+title: Setting up subversion on Debian etch
+categories: []
+tags: []
+status: publish
+type: post
+published: true
+meta:
+  _edit_last: '1'
+  _wpas_done_all: '1'
+---
+<p><img src="http://dertompson.com/wp-content/uploads/2007/09/svnlogo.png" class="alignright" alt="svn" />Yesterday I installed  subversion on a Debian server again and I had too look for some guidance in the web again. This time I decided to write it down for myself.</p>
+<p>I installed the following packages with aptitude:</p>
+<p><code>sudo aptitude install libapache2-svn subversion subversion-tools</code></p>
+<p>Afterwards the needed modules were already enabled in my apache2 configuration &#8211; I looked in /etc/apache2/mods-enabled/ and saw dav.load, dav_svn.conf and dav_svn.load linked. All I had to do was to create a repository by using svnadmin:</p>
+<p><code>sudo svnadmin create /var/lib/svn/main</code> (you may choose whatever directory you like)</p>
+<p>and configure the access path in my apache2 configuration:<br />
+<code><br />
+&lt;Location /svn&gt;<br />
+    DAV svn<br />
+    SVNListParentPath on<br />
+    SVNParentPath /var/lib/svn<br />
+    AuthType Basic<br />
+    AuthName "Subversion repositories"<br />
+    AuthUserFile /var/www/.svnusers<br />
+    Require valid-user<br />
+&lt;/Location&gt;<br />
+</code><br />
+I created some users with <code>htpasswd</code> and wrote them to the configured file <code>/var/www/.svnusers</code>. After loading the apache2 configuration I was able to connect and use the repository. I made www-data (the user under which apache2 runs)  the owner of the repository and its files.</p>
+<p>If you want more detailed configuration of access permissions have a look at the <code>AuthzSVNAccessFile</code> configuration directive.</p>

@@ -1,0 +1,38 @@
+---
+layout: post
+title: Tomcat remote debugging
+categories: []
+tags: []
+status: publish
+type: post
+published: true
+meta:
+  _edit_last: '1'
+  _wpas_done_all: '1'
+---
+<p>Sometimes your web applications behave different when deployed to the application server although everything worked fine when running inside Eclipse on your workstation.</p>
+<p>In this case it is helpful to remote debug the application. In case of using Tomcat as application server just add the following VM parameters to JAVA_OPTS:</p>
+<p><code>-Xdebug -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n</code></p>
+<p>I do this inside the file setenv.sh in the bin directory by adding a line JAVA_OPTS=&#8221;&#8230;options&#8230;&#8221;</p>
+<p>The paramete <code>-Xdebug</code> tells the VM to start in debug mode. <code>-Xrunjdwp</code> selects the protocol. Change the port 8000 to an appropriate value for your server (one that is not used by another process and is reachable). By setting the value <code>suspend=n</code><code></code> the VM does not wait until a remote debugging session connects until starting.</p>
+<p>Now all you have to to is start the server and run a remote debug session in Eclipse. You do this by selecting &#8220;Run -&gt; Debug&#8230;&#8221; from the menu. Then the following dialog appears:</p>
+<p><img src="http://tompson.wordpress.com/files/2007/01/remote.png" alt="Remote Debugging inÂ Eclipse" /></p>
+<p>Select the project that contains the application running on the server, enter the hostname of the server and the port you configured in the VM options and click Debug. Now set your breakpoints and debug your application.</p>
+<div class="sharedaddy sd-sharing-enabled"><div class="robots-nocontent sd-block sd-social sd-social-icon-text sd-sharing"><h3 class="sd-title">Share this:</h3><div class="sd-content"><ul><li class="share-facebook"><a rel="nofollow" class="share-facebook sd-button share-icon" href="http://dertompson.com/2007/01/25/tomcat-remote-debugging/?share=facebook" title="Share on Facebook" id="sharing-facebook-85"><span>Facebook</span></a></li><li class="share-twitter"><a rel="nofollow" class="share-twitter sd-button share-icon" href="http://dertompson.com/2007/01/25/tomcat-remote-debugging/?share=twitter" title="Click to share on Twitter" id="sharing-twitter-85"><span>Twitter</span></a></li><li class="share-google-plus-1"><a rel="nofollow" class="share-google-plus-1 sd-button share-icon" href="http://dertompson.com/2007/01/25/tomcat-remote-debugging/?share=google-plus-1" title="Click to share on Google+" id="sharing-google-85"><span>Google +1</span></a></li><li class="share-reddit"><a rel="nofollow" class="share-reddit sd-button share-icon" href="http://dertompson.com/2007/01/25/tomcat-remote-debugging/?share=reddit" title="Click to share on Reddit"><span>Reddit</span></a></li><li class="share-email"><a rel="nofollow" class="share-email sd-button share-icon" href="http://dertompson.com/2007/01/25/tomcat-remote-debugging/?share=email" title="Click to email this to a friend"><span>Email</span></a></li><li class="share-end"></li></ul><div class="sharing-clear"></div></div></div></div>					</div><!-- .entry-content -->
+		
+		<footer class="entry-meta">
+			This entry was posted in <a href="http://dertompson.com/category/java/" title="View all posts in Java" rel="category tag">Java</a> on <a href="http://dertompson.com/2007/01/25/tomcat-remote-debugging/" title="5:40 pm" rel="bookmark"><time class="entry-date" datetime="2007-01-25T17:40:10+00:00">January 25, 2007</time></a><span class="by-author"> by <span class="author vcard"><a class="url fn n" href="http://dertompson.com/author/tompson/" title="View all posts by tompson" rel="author">tompson</a></span></span>.								</footer><!-- .entry-meta -->
+	</article><!-- #post -->
+							
+	<article id="post-83" class="post-83 post type-post status-publish format-standard hentry category-web">
+				<header class="entry-header">
+									<h1 class="entry-title">
+				<a href="http://dertompson.com/2007/01/24/firefox-proxy-plugin/" title="Permalink to Firefox proxy plugin" rel="bookmark">Firefox proxy plugin</a>
+			</h1>
+										<div class="comments-link">
+					<a href="http://dertompson.com/2007/01/24/firefox-proxy-plugin/#respond" title="Comment on Firefox proxy plugin"><span class="leave-reply">Leave a reply</span></a>				</div><!-- .comments-link -->
+					</header><!-- .entry-header -->
+
+				<div class="entry-content">
+			<p>Today I found a <a href="https://addons.mozilla.org/firefox/2464/">great Firefox plugin</a> for configuring proxy servers. It allows you to define multiple proxy servers and patterns (per wildcards or regular expressions) when to use which proxy server.</p>
+<p>As a software developer it is very usefull to be able to define which site is loaded thru a proxy and which not (localhost, intranet servers).</p>

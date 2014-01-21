@@ -1,0 +1,63 @@
+---
+layout: post
+title: Sort algorithm changes in Java 7
+categories: []
+tags: []
+status: publish
+type: post
+published: true
+meta:
+  _edit_last: '1'
+  _wpas_done_all: '1'
+---
+<p>I just got the info from one of out customers that an error in the export function of a Grails application happend. The stacktrace looked like:</p>
+<pre>Error Details
+
+Error 500: Executing action [export] of controller [ExportController] caused exception: Runtime error executing action
+Servlet: grails
+URI: /app/grails/export/export.dispatch
+Exception Message: Comparison method violates its general contract!
+Caused by: Comparison method violates its general contract!
+Class: ExportPrintController
+At Line: [105]
+Code Snippet:
+Stack Trace
+
+java.lang.IllegalArgumentException: Comparison method violates its general contract!
+at java.util.TimSort.mergeHi(TimSort.java:868)
+at java.util.TimSort.mergeAt(TimSort.java:485)
+at java.util.TimSort.mergeCollapse(TimSort.java:408)
+at java.util.TimSort.sort(TimSort.java:214)
+at java.util.TimSort.sort(TimSort.java:173)
+at java.util.Arrays.sort(Arrays.java:659)
+at java.util.Collections.sort(Collections.java:217)
+at com.troii.app.web.ExportController$_closure2.doCall(ExportController.groovy:105)
+at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1110)
+at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:603)
+at java.lang.Thread.run(Thread.java:722)</pre>
+<p>I did some web search and came up with <a href="http://stackoverflow.com/questions/6626437/why-does-my-compare-method-throw-exception-comparison-method-violates-its-gen">this interesting discussion on stackoverflow</a>. Which links to the&nbsp;<a href="http://www.oracle.com/technetwork/java/javase/compatibility-417013.html#source">compatibility&nbsp;information page of JDK7</a> and a specific change they made in Java 7: <a href="http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6804124">changing the default sort algorithm from MergeSort to TimSort</a>&nbsp;in the&nbsp;java.util.Arrays.sort method.</p>
+<p>So a quick workaround for this issue was to add&nbsp;<code>-Djava.util.Arrays.useLegacyMergeSort=true</code> to the tomcat JVM environment – which forces the app to use the old algorithm.</p>
+<p>To really fix the issue I had to make a change to the code because it really violated the <a href="http://docs.oracle.com/javase/1.5.0/docs/api/java/lang/Comparable.html">Comparable contract</a>. Our code looked like:</p>
+<pre>int compare(ExportTerm e1, ExportTerm e2) {
+  if (e1.sortLabel == null) {
+    return -1
+  }
+  if (e2.sortLabel == null) {
+    return 1
+  }
+  return collator.compare(e1.sortLabel, e2.sortLabel)
+}</pre>
+<p>which is wrong, because if you compare two elements where the sortLabel is null on both, the return value would be -1 or 1, depending on the order you compare them – which violates the contract.</p>
+<p>Correct it has to look like:</p>
+<pre>int compare(ExportTerm e1, ExportTerm e2) {
+  if (e1.sortLabel == e2.sortLabel) {
+    return 0
+  }
+  if (e1.sortLabel == null) {
+    return -1
+  }
+  if (e2.sortLabel == null) {
+    return 1
+  }
+  return collator.compare(e1.sortLabel, e2.sortLabel)
+}</pre>

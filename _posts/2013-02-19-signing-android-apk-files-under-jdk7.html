@@ -1,0 +1,30 @@
+---
+layout: post
+title: Signing Android APK files under JDK7
+categories:
+- Android
+- Development
+tags:
+- android
+- development
+status: publish
+type: post
+published: true
+meta:
+  _edit_last: '1'
+  _wpas_done_all: '1'
+---
+We are using maven to build our Android applications in Jenkins for testing and for publishing them to the Play Store. Recently I started to have problems with the Play Store saying that the APK files were not signed or not aligned so I upgraded the Android Maven plugin and adapted the pom.xml files. Finally I was able to submit the signed and aligned APK files again to the Play Store – everything fine again, at least I thought so.
+
+An hour later I got the first mail from a user telling me that he hat troubles installing the update of the app from the Play Store. The error message said something about the certificate so I tried it myself and got the message
+
+INSTALL_PARSE_FAILED_NO_CERTIFICATES
+
+when trying to install the app on my device. I was confused because the app was signed, it contained the certificate information in the META-INF directory and the MANIFEST file and the Play Store validated it as signed.
+
+Some research brought up <a href="http://www.informit.com/articles/article.aspx?p=1966023&amp;seqNum=2">this article about Android’s Problem with JDK7</a> and I remembered that I recently installed JDK7 on my MacBook. It turns out that there is a difference in JDK7 regarding signature algorithms and <a href="https://issues.apache.org/bugzilla/show_bug.cgi?id=52344">ant has a problem with it too</a>. So to get APK files that are signed correct I had to configure the signature and digest algorithm the maven-jarsigner-plugin uses <a href="https://code.google.com/p/maven-android-plugin/wiki/SigningAPKWithMavenJarsigner">as described here</a>:
+<pre>&lt;arguments&gt;
+  &lt;argument&gt;-sigalg&lt;/argument&gt;&lt;argument&gt;MD5withRSA&lt;/argument&gt;
+  &lt;argument&gt;-digestalg&lt;/argument&gt;&lt;argument&gt;SHA1&lt;/argument&gt;
+&lt;/arguments&gt;</pre>
+Conclusion: Always test APK files after signing!

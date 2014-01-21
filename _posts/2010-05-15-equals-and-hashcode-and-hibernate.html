@@ -1,0 +1,58 @@
+---
+layout: post
+title: Equals and HashCode and Hibernate
+categories: []
+tags: []
+status: publish
+type: post
+published: true
+meta:
+  _edit_last: '1'
+  _wpas_done_all: '1'
+---
+<p>In one of my current consulting projects the topic of implementing equals and hashCode in Hibernate domain model classes was discussed again so I decided to write down how I deal with that in my projects.</p>
+<p>First I encourage every Java developer to read chapter 3 of <a href="http://www.amazon.de/gp/product/0321356683?ie=UTF8&amp;tag=tsb0f-21&amp;linkCode=as2&amp;camp=1638&amp;creative=19454&amp;creativeASIN=0321356683">Effective Java</a><img style="border: none !important; margin: 0px !important;" src="http://www.assoc-amazon.de/e/ir?t=tsb0f-21&amp;l=as2&amp;o=3&amp;a=0321356683" border="0" alt="" width="1" height="1" /> from Joshua Bloch &#8211; which is available <a href="http://java.sun.com/developer/Books/effectivejava/Chapter3.pdf">online here</a> (the whole book is great but chapter 3 deals with methods common to all objects). Basically chapter 3  says you have to obey the contracts when overriding equals (item 7) and to always override hashCode when overriding equals (item 8). These contracts are also documented in the <a href="http://java.sun.com/j2se/1.5.0/docs/api/">Java API doc</a>.</p>
+<p>When using Hibernate for persistence you have to decide if and how to implement hashCode and equals with that background and with the knowledge of your domain model. There is<a href="http://community.jboss.org/wiki/EqualsandHashCode"> a wiki document discussing this topic</a> which you should read. The most important headline here is &#8220;Separating object id and business key&#8221;.</p>
+<p>In my applications this means that for example the important parts of a User class looks like:</p>
+<pre class="brush: java">@Entity
+public class User {
+
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
+
+	@Column(unique = true)
+	private String login;
+
+}</pre>
+<p>In this case the id property is the object id used by Hibernate to identify the object and the login property is the business key. The hashCode and equals method of this User class look like:</p>
+<pre class="brush: java">@Override
+public int hashCode() {
+	final int prime = 31;
+	int result = 1;
+	result = prime * result + ((getLogin() == null) ? 0 : getLogin().hashCode());
+	return result;
+}
+
+@Override
+public boolean equals(final Object obj) {
+	if (this == obj) {
+		return true;
+	}
+	if (obj == null) {
+		return false;
+	}
+	if (Hibernate.getClass(this) != Hibernate.getClass(obj)) {
+		return false;
+	}
+	final User other = (User) obj;
+	if (getLogin() == null) {
+		if (other.getLogin() != null) {
+			return false;
+		}
+	} else if (!getLogin().equals(other.getLogin())) {
+		return false;
+	}
+	return true;
+}</pre>
+<p>It is important to notice that only the business key (the login property) is used for calculating the hashCode and to check if two objects are equal otherwise you will get strange behavior in HashSet and HashMaps containing objects of this type.</p>

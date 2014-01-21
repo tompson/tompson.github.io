@@ -1,0 +1,43 @@
+---
+layout: post
+title: What to ignore
+categories:
+- Development
+- git
+- Java
+tags:
+- eclipse
+- git
+- intellij
+- java
+status: publish
+type: post
+published: true
+meta:
+  _edit_last: '1'
+  _wpas_done_all: '1'
+  _wpas_skip_3439451: '1'
+  _wpas_skip_3439452: '1'
+  _wpas_skip_3439454: '1'
+---
+With the latest improvements we made at <a href="http://troii.com/">troii</a> to our development workflow, we discussed what should be committed to a source code repository and what files should be ignored. We already had the rule in place, that nothing should be put into the repository, that is generated from other sources (typically .class files, .war, .jar, …) – this rule is very common and agreed by almost every developer.
+
+How to handle another set of files usually leads to a lot of discussion: IDE settings, e.g. Eclipse .settings, .project, .classpath or IDEA IntelliJ .iml and .idea directory). Up until a year ago we mainly used Eclipse and I used to store the IDE configuration files in the repository. With switching to IntelliJ and working more with git branches, I startet to think about this again, because I had the feeling that those settings files changed more frequently.
+
+I read some articles and posts online and I came to the conclusion that it is better to exclude those settings files too. After looking at the dedicated github repository for git ignore templates at <a href="https://github.com/github/gitignore">https://github.com/github/gitignore</a> it became even clearer. The template for IntelliJ <a href="https://github.com/github/gitignore/blob/master/Global/IntelliJ.gitignore">https://github.com/github/gitignore/blob/master/Global/IntelliJ.gitignore</a> looks like:
+<pre>*.iml
+*.ipr
+*.iws
+.idea/</pre>
+The reasons I had, for putting those IDE settings into the repository, were, that I want a new developer in the team to be able to check out the code and start developing as fast as possible. A new project member should not have to configure his IDE in a very specific way to get the project running or even compiling. With using maven, gradle and Grails in nearly every project this has gotten a lot easier because most IDE’s have import features, that can interprete those build systems and configure the project.
+
+After deciding to stick with those rules, I looked for an easy way to use those git ignore templates and found <a href="https://github.com/simonwhitaker/gitignore-boilerplates">gitignore-boilerplates</a> – or short gibo. This is a nice little shell script that allows you put the right templates for your project together into the .gitignore file, for example the line
+<pre>gibo Eclipse IntelliJ Windows OSX Maven Java &gt; .gitignore</pre>
+creates a gitignore file for a Java project that uses Maven and is developed with IntelliJ or Eclipse under Windows or OS X. You could put the Eclipse, IntellIJ, Windows and OSX ignore rules into your global gitignore file on your machine but I like to put them into the project to make sure that all the other developers of the project use those rules too.
+
+I made a fork of each of those projects because there are configuration files I want to add to the repository:
+<ul>
+	<li><span style="line-height: 1.714285714; font-size: 1rem;">code style settings – so that every developer on the team formats the code in the same way</span></li>
+	<li>encoding settings – important when working on different operating systems</li>
+</ul>
+You can find those forks under <a href="https://github.com/troii/gitignore">https://github.com/troii/gitignore</a> and <a href="https://github.com/troii/gitignore-boilerplates">https://github.com/troii/gitignore-boilerplates</a>

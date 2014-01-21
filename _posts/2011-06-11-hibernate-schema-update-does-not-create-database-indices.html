@@ -1,0 +1,20 @@
+---
+layout: post
+title: Hibernate schema update does not create database indices
+categories: []
+tags: []
+status: publish
+type: post
+published: true
+meta:
+  _edit_last: '1'
+  _wpas_done_all: '1'
+---
+<p>In one of my Grails consulting projects we tried to define<strong> database indices</strong> via the<strong> static mapping element in the domain classes</strong>. A team member tried it an told me that this does not work so I digged a bit deeper to find out what the problem was.</p>
+<p>I created a simple test project, configured <code>hbm2ddl</code> auto to update, like I am used to and let Grails create a MySQL database schema. It seemed lie my colleague was right, the defined indices were not created (using Grails 1.3.7). Doing some web research brought up <a href="http://stackoverflow.com/questions/3533301/creating-indexes-on-db-with-hibernate-index-annotation">this Stackoverflow posting</a> suggesting that indices are only created when <code>hbm2ddl</code> auto was set to create (or create-drop) &#8211; which seemed to be the case.</p>
+<p>In my opinion this had to be a bug in hibernate but some searches on the hibernate.org website brought up <a href="http://community.jboss.org/wiki/HibernateFAQ-MiscellaneousFAQs#The_hibernatehbm2ddlautoupdate_setting_doesnt_create_indexes">a statement about this in the official FAQ</a>:</p>
+<blockquote>
+<h3 id="The_hibernatehbm2ddlautoupdate_setting_doesnt_create_indexes">The hibernate.hbm2ddl.auto=update setting doesn&#8217;t create indexes</h3>
+<p>SchemaUpdate  is activated by this configuration setting. SchemaUpdate is not really  very powerful and comes without any warranties. For example, it does not  create any indexes automatically. Furthermore, SchemaUpdate is only  useful in development, per definition (a production schema is never  updated automatically). You don&#8217;t need indexes in development.</p></blockquote>
+<p>I do not agree with that, in our project it is necessary to have indices in development, otherwise we are not able to import the data we need for testing!</p>
+<p>Luckily I found issue <a href="http://opensource.atlassian.com/projects/hibernate/browse/HHH-1012">HHH-1012</a> in the Hibernate which states that this behavior was changed (fixed) in current hibernate versions &#8211; I tried it with Hibernate 3.6.4 and this version created indices even when the <code>hbm2ddl</code> setting is configured with update. Grails 1.4 will be using 3.6.x of Hibernate to so it seems like this issue will be resolved soon for our project.</p>

@@ -1,0 +1,17 @@
+---
+layout: post
+title: JDBC connection to SQL Server 2008 hangs because of JDK 1.6 u29
+categories: []
+tags: []
+status: publish
+type: post
+published: true
+meta:
+  _edit_last: '1'
+  _wpas_done_all: '1'
+---
+<p>Normally I use MySQL on Mac OS X for developing our timr tracking application <a href="http://timr.com">timr.com</a>, but some enterprise customers are using it with SQL Server so I have to test it on that database to.</p>
+<p>Last week I took it for another spin and found that I was not able to connect to the SQL Server 2008 running in my VMWare fusion machine anymore. I could see that there was a process at the SQL server for the connection but no data went through. After blaming Windows firewall and SQL Server TCP/port settings if found <a href="http://stackoverflow.com/questions/7841411/driver-getconnection-hangs-using-sqlserver-driver-and-java-1-6-0-29">this discussion on stackoverflow.com</a>.</p>
+<p>As it turns out this was caused by an issue introduced with the Java 1.6 u29 as described in <a href="http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=7103725">this bug report</a>. The SQL server connection uses encryption and something was changed in this area by the Java update.</p>
+<p>Running <code>java -version</code> in the command line showed that I had exactlty that version on my system. No wonder &#8211; it came on 2011/11/11 with <a href="http://support.apple.com/kb/HT5045">Java for Mac OS X 10.7 Update 1</a></p>
+<p>A workaround is to replace the <code>jsse.jar</code> in the jre/lib folder of the JDK with a version from an older JDK.</p>

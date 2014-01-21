@@ -1,0 +1,19 @@
+---
+layout: post
+title: Be careful when reusing Hibernate domain model in Grails
+categories: []
+tags: []
+status: publish
+type: post
+published: true
+meta:
+  _edit_last: '1'
+  _wpas_done_all: '1'
+---
+<p>In one of my projects I am using Grails to create a simple crud management UI for an Spring MVC app. Because <a href="http://blog.springsource.com/2010/08/26/reuse-your-hibernatejpa-domain-model-with-grails/">Grails allows to reuse the existing Hibernate domain model</a> of the Spring app this saved a lot time.</p>
+<p>Last week I suddenly found out that Grails was using a different naming strategy when mapping the model to the database. In my case I wanted to let Grails create the tables for the Spring Security plugin so I activated the hbm2ddl update. When starting the app it created all the tables in my database with in lowercase and with underscores instead of camel case naming.</p>
+<p>I found out that Grails was using the <code>ImprovedNamingStrategy</code> instead of the <code>DefaultNamingStrategy</code> Hibernate used in my app. So I had to add the following configuration to the DataSource.groovy file:</p>
+<pre class="brush: groovy">hibernate {
+  naming_strategy=org.hibernate.cfg.DefaultNamingStrategy
+}</pre>
+<p>UPDATE: I wrote <a href="http://dertompson.com/2011/03/09/default-naming-strategies-with-grails-an-plain-hibernate/">another post on this topic</a>!</p>

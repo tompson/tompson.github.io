@@ -1,0 +1,17 @@
+---
+layout: post
+title: Error code 1920 when installing VMware converter
+categories: []
+tags: []
+status: publish
+type: post
+published: true
+meta:
+  _edit_last: '1'
+  _wpas_done_all: '1'
+---
+<p>I am just preparing our Windows 2003 Small Business Server to be upgraded to Small Business Server 2008. Therefor I tried to install the VMware converter tools to convert the old server to a virtual machine before upgrading it.</p>
+<p>My problem was that the installer always complained about not being able to start the converter service with the following message:</p>
+<p><code>VMware vCenter Converter Standalone — Error 1920<br />
+Service VMware vCenter Converter Server (vmware-converter-server) failed to start. Verify that you have sufficient privileges to start system services.</code></p>
+<p>After doing some web research with finding a lot of useless tips I found <a href="http://www.windows-faq.de/2009/11/03/vmware-converter-4-0-1-fehlermeldung-visual-c-runtime-error-1920/">this blog post</a> showing up a very easy solution: I had to add a group called &#8220;Domain Admins&#8221; because it did not exist on the German version of our Small Business Server. This is why I always try to install the original English version of operating systems when available and our new Small Business Server 2008 will be in English.</p>

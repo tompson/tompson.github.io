@@ -1,0 +1,26 @@
+---
+layout: post
+title: The case of the OS X filesystem HFS+ and git
+categories: []
+tags: []
+status: publish
+type: post
+published: true
+meta:
+  _edit_last: '1'
+  _wpas_done_all: '1'
+---
+<p>Yesterday I stumbled across a problem when renaming files in a <a href="http://git-scm.com/">git</a> repository by just changing the case of some characters. I wonder why I did not come across that earlier, maybe I did care about naming conventions for Java classes enough.</p>
+<p>We renamed a Java class in <a href="http://www.jetbrains.com/idea/">IntelliJ</a> from ProjectDao.java to ProjectDAO.java. After committing and pushing the changes, a colleague had a problem, compiling the code. The reason was, that the file name in his repository still was ProjectDao.java, but it contained a class called ProjectDAO &#8211; which does not compile in Java.</p>
+<p>So I did a little research on why this happened. First <a href="http://stackoverflow.com/questions/52950/how-to-make-git-ignore-changes-in-case">I found posts about a git setting called core.ignorecase</a> which (as the name says) tells git to ignore the case. I checked my configuration and found that the setting was<a href="http://www.kernel.org/pub/software/scm/git/docs/git-config.html"> not configured</a> so the default value false used.</p>
+<p><a href="http://stackoverflow.com/questions/1793735/git-change-case-of-a-file-on-windows">Another post on stackoverflow</a> hinted that renaming the files via <a href="http://kernel.org/pub/software/scm/git/docs/git-mv.html">git mv with the option -f</a> would track the change. I tried the command</p>
+<p><code>git mv -f ProjectDao.java ProjectDAO.java</code></p>
+<p>and that did the trick, my git repository recognized the change as a renamed file:</p>
+<p><a href="http://dertompson.com/wp-content/uploads/2012/08/Screen-Shot-2012-08-18-at-19.30.53.png"><img class="aligncenter size-full wp-image-1042" title="Screen Shot 2012-08-18 at 19.30.53" src="http://dertompson.com/wp-content/uploads/2012/08/Screen-Shot-2012-08-18-at-19.30.53.png" alt="" width="470" height="127" /></a></p>
+<p>After trying again in IntelliJ IDEA, I saw that the renaming operation did not work correct there, so <a href="http://youtrack.jetbrains.com/issue/IDEA-90333">I filled a bug in their issues tracker</a>.</p>
+<p>I always thought, after switching to Mac OS, I would not have to deal with those weird case problems, we always had when working in mixed teams with Windows an Linux and other source code management systems like Subversion or CVS. So I was shocked when I became aware of this issue.</p>
+<p>After digging even deeper, I found <a href="http://tapestryjava.blogspot.co.at/2010/07/git-on-mac-os-x-dont-ignore-case.html">this blog post</a> and <a href="http://apple.stackexchange.com/questions/22297/is-bash-in-osx-case-insensitive">this post on apple stackexchange</a> telling me that HFS+, the default file system on OS X, is not case sensitive but only case preserving. For me it was always clear that the underlying Unix of OS X uses a filesystem that is case sensitive &#8211; but no. I checked my disks with <code>diskutil info</code> and had to see the following:</p>
+<p><a href="http://dertompson.com/wp-content/uploads/2012/08/Screen-Shot-2012-08-18-at-19.45.05.png"><img class="aligncenter size-full wp-image-1044" title="Screen Shot 2012-08-18 at 19.45.05" src="http://dertompson.com/wp-content/uploads/2012/08/Screen-Shot-2012-08-18-at-19.45.05.png" alt="" width="471" height="56" /></a></p>
+<p>Which means that my disk was formatted case insensitive. When creating a partition in the diskutil you can select case sensitive , but the installer did not do that per default. There are ways to change the system to case sensitive with a third party tool like <a href="http://www.coriolis-systems.com/iPartition.php">iPartition</a> but I hesitate to make such a big change.</p>
+<p>For now I guess I have to wait for IntelliJ to fix <a href="http://youtrack.jetbrains.com/issue/IDEA-90333">that issue</a> and in the meanwhile do the renaming via the git command in the terminal.</p>
+<p>btw: I checked with <a href="http://www.eclipse.org/">Eclipse</a> and <a href="http://www.eclipse.org/egit/">egit</a> to &#8211; they already handle this correct!</p>

@@ -1,0 +1,69 @@
+---
+layout: post
+title: Named access on the Window object in Safari
+categories:
+- JavaScript
+tags:
+- dom
+- html
+- javascript
+status: publish
+type: post
+published: true
+meta:
+  _edit_last: '1'
+  _syntaxhighlighter_encoded: '1'
+  _wpas_done_all: '1'
+---
+<img class="alignright size-full wp-image-203" alt="download" src="http://dertompson.com/wp-content/uploads/2013/08/download.jpeg" width="258" height="195" />This week we noticed that the user administration of our time tracking app <a href="http://www.timr.com/">timr</a> behaved different on Safari.
+
+I debugged into that issue and found out that a condition in JavaScript behaved different than in other browsers:
+
+[code language="javascript"]if (assignedGroupTable) ...[/code]
+
+The variable assignedGroupTable was defined some lines before with
+
+[code language="javascript"]var assignedGroupTable;[/code]
+
+and the condition should be <strong>false</strong> on the first call of that function, but in <strong>Safari</strong> it was <strong>true</strong>. The debugger showed that the value of <em>assignedGroupTable</em> seemed to be a <em>DIV</em> - there was a <em>DIV</em> in the page with an ID <em>assignedGroupTable,</em> but it had never been assigned to that variable. It seemed like Safari automatically assigned the <em>DIV,</em> with the ID, that was equal to the variable name, to the variable.
+
+After a quick search, I came to <a href="http://tjvantoll.com/2012/07/19/dom-element-references-as-global-variables/">this article about DOM Element References as Global Variables</a> and I was really surprised, about what I read there. It seems like all modern browser implement the <em><i>Named access on the Window object,</i></em> which allows you to access elements via the ID or NAME attribute, simply by using it like a variable in JavaScript.
+
+So why did our code behave different in Safari? I adapted the example the article uses to find the difference in the behaviour of Safari.
+
+[code language="html"]
+&lt;html&gt;
+ &lt;head&gt;&lt;/head&gt;
+ &lt;body&gt; 
+  &lt;button id=&quot;bar&quot;&gt;Button&lt;/button&gt;
+  &lt;script&gt;
+   console.log(bar);
+  &lt;/script&gt;
+ &lt;/body&gt;
+&lt;/html&gt;
+[/code]
+
+On modern browsers (Chrome 29, Safari 6, Firefox 22, IE 10) this logs the button element to the console. But when making a small change the browsers behave different:
+
+[code language="html"]
+&lt;html&gt;
+ &lt;head&gt;&lt;/head&gt;
+ &lt;body&gt; 
+  &lt;button id=&quot;bar&quot;&gt;Button&lt;/button&gt;
+  &lt;script&gt;
+   var bar;
+   console.log(bar);
+  &lt;/script&gt;
+ &lt;/body&gt;
+&lt;/html&gt;
+[/code]
+
+In Chrome, Firefox and IE this logs <em>undefined</em> to the console, <strong>only Safari still logs the button element!</strong>
+
+There were two ways to fix our problem:
+<ol>
+	<li>rename the <em>ID</em> of the <em>DIV</em> or the variable so that they differ</li>
+	<li>define the variable in the JavaScript with
+[code language="javascript"]var assignedGroupTable = null;[/code] setting the value explicitly to null</li>
+</ol>
+Wo decided to do the second because it required fewer changes.

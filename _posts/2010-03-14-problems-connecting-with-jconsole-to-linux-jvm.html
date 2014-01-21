@@ -1,0 +1,14 @@
+---
+layout: post
+title: Problems connecting with jconsole to linux jvm
+categories: []
+tags: []
+status: publish
+type: post
+published: true
+meta:
+  _edit_last: '1'
+  _wpas_done_all: '1'
+---
+<p>Lately I had problems configuring the JMX remote management for tomcat servers running on Ubuntu linux servers. After configuring everything necessary like the com.sun.management.jmxremote JVM parameters and the password files I still got connection errors when trying to connect from my Windows system to the server via jconsole.</p>
+<p>I found <a href="http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6209663">this bug entry</a> for the Sun Java VM with some interesting suggestions. In my case the problem was a wrong configuration of the <code>/etc/hosts</code> file. The command <code>hostname -i</code> always resolved to the loopback device 127.0.0.1 &#8211; after adapting the <code>/etc/hosts</code> file so that <code>hostname -i</code> resolved the real IP address I was able to connect my jconsole.</p>

@@ -1,0 +1,20 @@
+---
+layout: post
+title: Using Spring Batch in Grails applications
+categories: []
+tags: []
+status: publish
+type: post
+published: true
+meta:
+  _edit_last: '1'
+  _wpas_done_all: '1'
+---
+<p>In one of my grails projects we are using <a href="http://static.springsource.org/spring-batch/">Spring Batch</a> for processing huge amounts of data. We are processing 100000 database entries in one run. When using <code>HibernatePagingItemReader</code> or  <code>HibernateCursorItemReader</code> we ran into <code>OutOfMemory</code> errors.</p>
+<p>Using the <a href="http://www.eclipse.org/mat/">Eclipse Memory Analyzer</a> I quickly found the reason for this behavior. When starting the <code>Spring Batch Job</code> via the <code>JobLauncher</code> from a <code>Grails Quartz Plugin Job</code> it creates a <code>HibernateSession</code> per default. Even if the Spring Batch jobs handle the HibernateSession correct by fetching only a few items and committing small blocks of elements per transaction all the read items are still held by outer <code>HibernateSession</code> of the <code>Quartz Job</code>. This is how the nested session structure looks like while the job is running:</p>
+<p><a href="http://dertompson.com/wp-content/uploads/2011/05/Screen-shot-2011-05-10-at-13.56.48.png"><img class="aligncenter size-full wp-image-925" title="Screen shot 2011-05-10 at 13.56.48" src="http://dertompson.com/wp-content/uploads/2011/05/Screen-shot-2011-05-10-at-13.56.48.png" alt="" width="365" height="222" /></a></p>
+<p>The solution was to set the flag<br />
+<code><br />
+def sessionRequired = false<br />
+</code><br />
+in the Quartz Job, so it does not require Grails to provide a session. This allows the Spring Batch jobs to handle their sessions without a surrounding session and resolves the memory issue.</p>

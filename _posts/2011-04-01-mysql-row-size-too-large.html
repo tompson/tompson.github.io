@@ -1,0 +1,34 @@
+---
+layout: post
+title: MySQL Row size too large
+categories: []
+tags: []
+status: publish
+type: post
+published: true
+meta:
+  _edit_last: '1'
+  _wpas_done_all: '1'
+---
+<p>Lately a customer I am helping to build a Grails application had an issue with creating tables in MySQL. They got the following error message when Hibernate tried to create the tables for their domain model:</p>
+<p><code>Column length too big for column 'text' (max = 21845); use BLOB or TEXT instead</code></p>
+<p>The reason was that the <code>maxSize</code> constraint of this property was set to 40000 and Hibernate tried to create a <code>VARCHAR(40000)</code> column in the MySQL table. Why did Hibernate want to do this? Another interesting thing was that Hibernate was able to create tables for the same model on other developer machines before.</p>
+<p>I turned out that on of the developers upgraded the local MySQL installation from 5.1.x to 5.5.x and it was not possible to create any table on the new MySQL version. This was caused by the Hibernate dialect <code>MySQLInnoDBDialect</code> which was used. Switching to <code>MySQL5InnoDBDialect</code> worked partially but brought up the error mentioned  above. So what was the difference?</p>
+<p>Looking in the source of the different Hibernate dialect classes helped me understand the reasons. <code>MySQLInnoDBDialect</code> appends <code>type=InnoDB</code> to the create table string which was removed from the syntax in 5.5. It was deprecated in 5.1 already in favor of <code>engine=InnoDB</code> but it did still work. I was not aware that the team did still use the <code>MySQLDialect</code> classes and I advice to use the <code>MySQL5Dialect</code> for applications running on MySQL 5.x databases.</p>
+<p>The difference between <code>MySQLDialect</code> and <code>MySQL5Dialect</code> that causes the column length can be found in the registerVarcharTypes method:</p>
+<pre class="brush: java">protected void registerVarcharTypes() {
+  registerColumnType( Types.VARCHAR, "longtext" );
+// registerColumnType( Types.VARCHAR, 16777215, "mediumtext" );
+  registerColumnType( Types.VARCHAR, 65535, "varchar($l)" );
+}</pre>
+<p>This methods defines that for String properties up to 65535 chars length a <code>VARCHAR</code> column should be used while in the <code>MySQLDialect</code> version it looks like:</p>
+<pre class="brush: java">protected void registerVarcharTypes() {
+  registerColumnType( Types.VARCHAR, "longtext" );
+// registerColumnType( Types.VARCHAR, 16777215, "mediumtext" );
+// registerColumnType( Types.VARCHAR, 65535, "text" );
+  registerColumnType( Types.VARCHAR, 255, "varchar($l)" );
+}</pre>
+<p>In this versions Strings with a length greater than 255 chars will be stored in a <code>LONGTEXT</code> column which makes perfect sense. You could store one <code>VARCHAR</code> column with 20000 chars in a table row but if you try to add more you get the following error:</p>
+<p><code>Error Code: 1118<br />
+Row size too large. The maximum row size for the used table type, not counting BLOBs, is 65535. You have to change some columns to TEXT or BLOBs</code></p>
+<p>I think this a bug in the MySQL5Dialect and<a href="http://opensource.atlassian.com/projects/hibernate/browse/HHH-6075"> I filed one in the Hibernate JIRA</a>. Meanwhile you can work around this problem by defining the column type explicitly for your properties.</p>

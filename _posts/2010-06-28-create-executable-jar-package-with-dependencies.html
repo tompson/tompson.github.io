@@ -1,0 +1,32 @@
+---
+layout: post
+title: Create executable jar package with dependencies
+categories: []
+tags: []
+status: publish
+type: post
+published: true
+meta:
+  _edit_last: '1'
+  _syntaxhighlighter_encoded: '1'
+  _wpas_done_all: '1'
+---
+Lately I wrote myself some small GUI tools using Groovy’s SwingBuilder. To “install” them in my system I wanted to create a single JAR file containing all the required dependencies. Using the following maven plugin configuration it was very easy to achieve that:
+
+[code language="html"]
+&lt;plugin&gt;
+  &lt;artifactId&gt;maven-assembly-plugin&lt;/artifactId&gt;
+  &lt;configuration&gt;
+    &lt;archive&gt;
+      &lt;manifest&gt;
+        &lt;mainClass&gt;fully.qualified.MainClass&lt;/mainClass&gt;
+      &lt;/manifest&gt;
+    &lt;/archive&gt;
+    &lt;descriptorRefs&gt;
+      &lt;descriptorRef&gt;jar-with-dependencies&lt;/descriptorRef&gt;
+    &lt;/descriptorRefs&gt;
+  &lt;/configuration&gt;
+&lt;/plugin&gt;
+[/code]
+
+Running the <code>mvn assembly:assembly</code> command created the desired JAR file containing the MANIFEST file that runs the right Class on double clicking the JAR.

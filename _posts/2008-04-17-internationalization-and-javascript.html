@@ -1,0 +1,22 @@
+---
+layout: post
+title: Internationalization and JavaScript
+categories: []
+tags: []
+status: publish
+type: post
+published: true
+meta:
+  _edit_last: '1'
+  _wpas_done_all: '1'
+---
+<p>Lately the amount of JavaScript in web applications has grown a lot. JavaScript has always been there but with the need of AJAX and more and more dynamical features modern web developers can not avoid it.</p>
+<p>Luckily there are a lot of good concepts arising and libraries available (e.g. <a href="http://prototypejs.org/">prototype</a>, <a href="http://developer.yahoo.com/yui/">yui</a>, …) that show how to control the JavaScript monster. Something that always bothered me was that I was not able to find a good editor for JavaScript. Since about six months I am using <a href="http://labs.adobe.com/technologies/jseclipse/">JSEclipse from Adobe</a> which is a free Eclipse plugin that provides a lot support for writing JavaScript (code-completion, syntac check, …).</p>
+<p>The JSEclipse editor allows me to edit standalone JS files and script code included in JSPs but many times I ran into the problem that I needed to mix JavaScript and Java code. For example to define an URL for an AJAX request or to get a message from a resource bundle that has to be displayed in a JavaScript dialog. The JSEclipse editor does not understand this “mixed” code parts. Additionally it is not possible to externalize the JavaScript code into external files and the code looks ugly.</p>
+<p>Yesterday I found <a href="http://www.lingoport.com/javascript-internationalization-%E2%80%93-the-good-the-bad-and-the-ugly">this article</a> about how to do I18N in JavaScript. I like the approach with the externalized constants very much because</p>
+<ul>
+<li>it allows me to create a central include containing all the information from Java needed for the JavaScript code -&gt; only one place to change</li>
+<li>the main JavaScript code is “JavaScript only” -&gt; editable by the JSEclipse editor</li>
+<li>the JavaScript only code may be externalized into separate files</li>
+<li>the appearance of the constants instantly makes their purpose clear and the JS code looks clean</li>
+</ul>

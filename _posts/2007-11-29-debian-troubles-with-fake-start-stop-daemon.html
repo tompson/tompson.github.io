@@ -1,0 +1,18 @@
+---
+layout: post
+title: Debian Troubles with fake start-stop-daemon
+categories: []
+tags: []
+status: publish
+type: post
+published: true
+meta:
+  _edit_last: '1'
+  _wpas_done_all: '1'
+---
+<p><img class="alignright" src="http://dertompson.com/wp-content/uploads/2007/11/images2.jpg" alt="Tux" />Today I experienced a problem with my VDR linux system I never had in the last years on any linux system. I switched on my system and wondered why I could not connect with ssh. Then I realized that no service was running &#8211; no samba, no http, no vdr &#8230;</p>
+<p>I had to connect the PC to a monitor and start it again to see that every time a service should be started the following message was printed:</p>
+<p><code>Warning: Fake start-stop-daemon called. Doing nothing</code></p>
+<p>It seems like a failed install script changed my start-stop-daemon script and did not rollback the changes. After some search I found that the following command fixes this problem:</p>
+<p><code>apt-get install dpkg --reinstall</code></p>
+<p>Very weird.</p>

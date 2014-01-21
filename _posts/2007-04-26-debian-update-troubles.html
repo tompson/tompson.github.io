@@ -1,0 +1,20 @@
+---
+layout: post
+title: Debian update troubles
+categories: []
+tags: []
+status: publish
+type: post
+published: true
+meta:
+  _edit_last: '1'
+  _wpas_done_all: '1'
+---
+<p>Today I had some problems with updating my Debian system because some of the updates had unresolved dependencies. I found out that my provider made a small mistake inside /etc/apt/sources.list &#8211; can you find it?</p>
+<p><code>#deb ftp://ftp.debian.org/debian stable main contrib non-free<br />
+deb http://security.debian.org stable/updates main contrib non-free</code></p>
+<p><code>#Local server:<br />
+deb ftp://83.137.232.178/mirror/ftp.debian.org/debian/ sarge main contrib non-free</code></p>
+<p>Hint: On April 8th Debian etch was released.</p>
+<p>In my sources.list the security updates are loaded from the stable repository and the other packages from the sarge repository. Three weeks ago these two were the same (because sarge was stable) and now etch is stable &#8211; problem!</p>
+<p>I changed the security update path to sarge and everything works fine again. I am thinking about updating to etch soon &#8211; though never change a running system <img src='http://dertompson.com/wp-includes/images/smilies/icon_wink.gif' alt=';-)' class='wp-smiley' /> </p>
